@@ -62,6 +62,14 @@ export async function importAccount(
     password = "password1234",
   }: MetaMaskOptions
 ): Promise<void> {
+  for (var i = 0; i < 5; i ++) {
+    try {
+        await metaMaskPage.waitForXPath(`//h2[contains(text(), "Let's get started")]`, {timeout: 3000});
+        break;
+    } catch (error) {
+        await metaMaskPage.reload();
+    }
+  }
   await waitForOverlay(metaMaskPage);
   await clickOnElement(metaMaskPage, "onboarding-terms-checkbox");
   await clickOnButton(metaMaskPage, "onboarding-import-wallet");
@@ -77,6 +85,21 @@ export async function importAccount(
   // onboarding/create-password URL
   await clickOnButton(metaMaskPage, "create-password-terms");
   await clickOnNavigationButton(metaMaskPage, "create-password-import");
+  for (var i = 0; i < 5; i ++) {
+    try {
+        await Promise.race([
+          waitForOverlay(metaMaskPage),
+          new Promise((resolve, reject) => {
+              setTimeout(() => {
+                  reject(new Error());
+              }, 3000);
+          })
+        ]);
+        break;
+    } catch (e) {
+        await metaMaskPage.reload();
+    }
+  }
   await waitForOverlay(metaMaskPage);
 
   // onboarding/completion URL
